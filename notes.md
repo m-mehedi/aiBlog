@@ -1,4 +1,4 @@
-# Build Project Core
+# Build Project Core Sever
 ## Step 01: 
     `npm i express mongoose dotenv cors morgan cookie-parser`
     `npm i -D @types/express @types/mongoose @types/dotenv @types/cors @types/morgan @types/cookie-parser`
@@ -11,3 +11,25 @@
 ## Initiate Output Directory
     `npx tsc`
     `node dist/index.js`
+
+## Create Server folders
+```
+mkdir config
+mkdir controllers
+mkdir middleware
+mkdir models
+mkdir routes
+```
+
+# Build Client
+```
+npx create-react-app client --template typescript
+```
+# Config Database
+`cd server/config`
+
+## Add bcrypt
+```
+npm i bcryopt jsonwebtoken
+npm i @types/bcrypt @types/jsonwebtoken
+```
