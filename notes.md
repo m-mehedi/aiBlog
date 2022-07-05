@@ -33,3 +33,5 @@ npx create-react-app client --template typescript
 npm i bcryopt jsonwebtoken
 npm i @types/bcrypt @types/jsonwebtoken
 ```
+# Mailer
+`npm i nodemailer google-auth-library`

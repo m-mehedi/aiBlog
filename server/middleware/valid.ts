@@ -1,31 +1,37 @@
 import { Request, Response, NextFunction } from 'express'
 export const validRegister = async(req: Request, res: Response, next: NextFunction) => {
     const {name, account, password } = req.body
+    const errors = [];
+
     if(!name){
-        return res.status(400).json({msg: "Please, add your name."})
+        errors.push("Please, add your name.")
     } else if(name.length > 20){
-        return res.status(400).json({msg:"Name must be of 20 characters."})
+        errors.push("Name must be of 20 characters.")
     }
 
     if(!account){
-        return res.status(400).json({msg: "Please, add your email account or phone number."})
+        errors.push("Please, add your email account or phone number.")
     } else if(!validPhone(account) && !validateEmail(account)){
-        return res.status(400).json({msg:"Email or phone number is not correct."})
+        errors.push("Email or phone number is not correct.")
     }
 
     if(password.length < 6){
-        return res.status(400).json({msg: "Password must be at least 6 digits."})
+        errors.push("Password must be at least 6 digits.")
     }
 
+    if(errors.length >0){
+        return res.status(400).json({msg: errors})
+    }
     next();
+
 }
 
-const validPhone = (phone: string) =>{
+export const validPhone = (phone: string) =>{
     const re = /^[+]/g
     return re.test(phone)
 }
 
-const validateEmail = (account: string) => {
+export const validateEmail = (account: string) => {
     return String(account)
       .toLowerCase()
       .match(
