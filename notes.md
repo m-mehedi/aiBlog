@@ -35,3 +35,22 @@ npm i @types/bcrypt @types/jsonwebtoken
 ```
 # Mailer
 `npm i nodemailer google-auth-library`
+
+
+# Setup Client
+## Install dependency
+```
+npm i react-router-dom axios redux redux-thunk react-redux redux-d
+evtools-extension
+npm i --save-dev @types/react-router-dom
+```
+
+
+## Make directories in src
+```
+mkdir components
+mkdir pages
+mkdir redux
+mkdir styles
+mkdir utils
+```
