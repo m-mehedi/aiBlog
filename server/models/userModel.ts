@@ -1,5 +1,6 @@
-import { timeStamp } from "console";
 import mongoose from "mongoose";
+import {IUser} from '../config/interface'
+
 const userSchema = new mongoose.Schema({
     name:{
         type: String,
@@ -27,10 +28,10 @@ const userSchema = new mongoose.Schema({
     },
     type:{
         type: String,
-        default: 'normal' // social or phone number
+        default: 'register' // social or phone number
     }
 },{
     timestamps: true
 })
 
-export default mongoose.model('User', userSchema)
+export default mongoose.model<IUser>('User', userSchema)

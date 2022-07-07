@@ -2,12 +2,11 @@ import { Request, Response} from 'express'
 import Users from '../models/userModel'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import {generateActiveToken } from '../config/generateToken'
+import {generateActiveToken, generateAccessToken, generateRefreshToken } from '../config/generateToken'
 import sendEmail from '../config/sendMail'
 import { validateEmail, validPhone } from '../middleware/valid'
 import { sendSMS } from '../config/sendSMS'
-import { IDecodedToken } from '../config/interface'
-import { decode } from 'punycode'
+import { IDecodedToken, IUser } from '../config/interface'
 
 
 const CLIENT_URL= process.env.BASE_URL;
@@ -67,7 +66,70 @@ const authCtrl = {
             }
             return res.status(500).json({msg: errMsg })
         }
-    }
+    },
+    login: async(req: Request, res: Response) => {
+        try{
+            const {account, password} = req.body
+            
+            const user = await Users.findOne({account})
+            if(!user) return res.status(400).json({msg: "This account doesn't exist."})
+
+            loginUser(user, password, res)
+            // res.json({msg: "Login success"})         
+
+        } catch (err: any) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    logout: async(req: Request, res: Response) => {
+        try{
+                res.clearCookie('refreshtoken', {path: `/api/refresh_token`})
+                return res.json({msg: "Logged out!"})
+        } catch (err: any) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    refreshToken: async(req: Request, res: Response) => {
+        try{
+                const rf_token = req.cookies.refreshtoken
+                // If there is no refreshtoken
+                if(!rf_token) return res.status(400).json({msg: "Please log in."})
+
+                //  verifies refresh token with server
+                const decoded = <IDecodedToken> jwt.verify(rf_token,`${process.env.REFRESH_TOKEN_SECRET}`)
+                //  if id doesn't  found while decoding
+                if(!decoded.id) return res.status(400).json({msg: "Please log in."})
+                
+                // gets user object
+                const user = await Users.findById(decoded.id).select("-password")
+                // checks if user exists while login
+                if(!user) return res.status(400).json({msg:"This account doesn't exist"})
+
+                const access_token = generateAccessToken({id: user._id})
+                return res.json({access_token})
+        } catch (err: any) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
 }
 
+const loginUser = async (user: IUser, password: string, res: Response ) => {
+    const isMatch = await bcrypt.compare(password, user.password)
+    if(!isMatch) return res.status(500).json({msg: "Incorrect password!"})
+    
+    const access_token = generateAccessToken({id: user._id})
+    const refresh_token = generateRefreshToken({id: user._id})
+
+    res.cookie('refreshtoken', refresh_token, {
+        httpOnly: true,
+        path: `/api/refresh_token`,
+        maxAge: 30*24*60*60*1000
+    })
+
+    res.json({
+        msg: 'Login Success!',
+        access_token,
+        user: {...user._doc, password:''}
+    })
+}
 export default authCtrl;
