@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { InputChange } from "../../utils/TypeScript";
+import { useDispatch } from "react-redux";
+import { InputChange, FormSubmit } from "../../utils/TypeScript";
+import { login } from "../../redux/actions/authAction";
 
 const LoginPass = () => {
   const initialState = { account: "", password: "" };
@@ -7,17 +9,25 @@ const LoginPass = () => {
   const { account, password } = userLogin;
 
   const [typePass, setTypePass] = useState(false);
+  const dispatch = useDispatch();
 
-  const handleChangeInput = (e: any) => {
+  const handleChangeInput = (e: InputChange) => {
     // const target = e.target as HTMLTextAreaElement;
     const { name, value } = e.target;
     setUserLogin({ ...userLogin, [name]: value });
   };
 
+  const handleSubmit = (e: FormSubmit) => {
+    e.preventDefault();
+    dispatch(login(userLogin));
+    // dispatch(login(userLogin))
+  };
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <div className="form-group mb-3">
-        <label htmlFor="account" className="form-label">Email / Phone No</label>
+        <label htmlFor="account" className="form-label">
+          Email / Phone No
+        </label>
         <input
           type="text"
           className="form-control"
@@ -28,7 +38,9 @@ const LoginPass = () => {
         />
       </div>
       <div className="form-group mb-3">
-        <label htmlFor="password" className="form-label">Password</label>
+        <label htmlFor="password" className="form-label">
+          Password
+        </label>
         <div className="pass">
           <input
             type={typePass ? "text" : "password"}
